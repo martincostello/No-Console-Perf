@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "No-Console-Perf": {
+      "commandName": "Project",
+      "launchBrowser": false
+    }
+  }
+}
