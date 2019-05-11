@@ -26,7 +26,7 @@ namespace NoConsolePerf
                     await benchmark.StopServerAsync();
 
                     await benchmark.StartServerWithSmartConsoleAsync();
-                    await benchmark.WithConsole();
+                    await benchmark.WithSmartConsole();
                     await benchmark.StopServerAsync();
                 }
             }
