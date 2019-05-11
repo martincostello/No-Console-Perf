@@ -56,22 +56,25 @@ namespace NoConsolePerf
             await _host.StartAsync();
         }
 
-        [GlobalCleanup(Target = nameof(NoConsole))]
-        public async Task StopServerNoConsoleAsync()
-            => await ShutdownHostAsync();
-
-        [GlobalCleanup(Target = nameof(WithConsole))]
-        public async Task StopServerWithConsoleAsync()
-            => await ShutdownHostAsync();
-
-        [Benchmark]
-        public async Task<byte[]> NoConsole()
+        [GlobalCleanup(Targets = new[] { nameof(NoConsole), nameof(WithConsole) })]
+        public async Task StopServerAsync()
         {
-            return await _client.GetByteArrayAsync("/");
+            if (_host != null)
+            {
+                await _host.StopAsync();
+                _host.Dispose();
+                _host = null;
+            }
         }
 
         [Benchmark(Baseline = true)]
         public async Task<byte[]> WithConsole()
+        {
+            return await _client.GetByteArrayAsync("/");
+        }
+
+        [Benchmark]
+        public async Task<byte[]> NoConsole()
         {
             return await _client.GetByteArrayAsync("/");
         }
@@ -106,16 +109,6 @@ namespace NoConsolePerf
             }
 
             return builder.Build();
-        }
-
-        private async Task ShutdownHostAsync()
-        {
-            if (_host != null)
-            {
-                await _host.StopAsync();
-                _host.Dispose();
-                _host = null;
-            }
         }
 
         private sealed class BenchmarkHostLifetime : IHostLifetime

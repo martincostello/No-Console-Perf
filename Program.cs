@@ -19,11 +19,11 @@ namespace NoConsolePerf
 
                     await benchmark.StartServerNoConsoleAsync();
                     await benchmark.NoConsole();
-                    await benchmark.StopServerNoConsoleAsync();
+                    await benchmark.StopServerAsync();
 
                     await benchmark.StartServerWithConsoleAsync();
                     await benchmark.WithConsole();
-                    await benchmark.StopServerWithConsoleAsync();
+                    await benchmark.StopServerAsync();
                 }
             }
             else
