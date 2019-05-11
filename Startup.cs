@@ -19,7 +19,9 @@ namespace NoConsolePerf
                        "/",
                        async (context) =>
                        {
-                           context.RequestServices.GetRequiredService<ILogger<Startup>>().LogInformation("Processed request");
+                           var logger = context.RequestServices.GetRequiredService<ILogger<Startup>>();
+                           logger.LogInformation("Processed request");
+
                            await context.Response.Body.WriteAsync(Array.Empty<byte>());
                        });
                });

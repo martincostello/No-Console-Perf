@@ -56,7 +56,14 @@ namespace NoConsolePerf
             await _host.StartAsync();
         }
 
-        [GlobalCleanup(Targets = new[] { nameof(NoConsole), nameof(WithConsole) })]
+        [GlobalSetup(Target = nameof(WithSmartConsole))]
+        public async Task StartServerWithSmartConsoleAsync()
+        {
+            _host = CreateHost(useConsole: true, useSmartConsole: true);
+            await _host.StartAsync();
+        }
+
+        [GlobalCleanup(Targets = new[] { nameof(NoConsole), nameof(WithConsole), nameof(WithSmartConsole) })]
         public async Task StopServerAsync()
         {
             if (_host != null)
@@ -79,6 +86,12 @@ namespace NoConsolePerf
             return await _client.GetByteArrayAsync("/");
         }
 
+        [Benchmark]
+        public async Task<byte[]> WithSmartConsole()
+        {
+            return await _client.GetByteArrayAsync("/");
+        }
+
         public void Dispose()
         {
             Dispose(true);
@@ -96,12 +109,17 @@ namespace NoConsolePerf
             _disposed = true;
         }
 
-        private IHost CreateHost(bool useConsole)
+        private IHost CreateHost(bool useConsole, bool useSmartConsole = false)
         {
             var builder = Host.CreateDefaultBuilder()
-                .ConfigureLogging((builder) => builder.ClearProviders().SetMinimumLevel(LogLevel.None))
+                .ConfigureLogging((builder) => builder.ClearProviders().SetMinimumLevel(LogLevel.Error))
                 .ConfigureServices((services) => services.AddSingleton<IHostLifetime, BenchmarkHostLifetime>())
                 .ConfigureWebHostDefaults((builder) => builder.UseStartup<Startup>().UseUrls("http://localhost:5000"));
+
+            if (useConsole && useSmartConsole)
+            {
+                useConsole = !Console.IsErrorRedirected || !Console.IsOutputRedirected;
+            }
 
             if (useConsole)
             {
